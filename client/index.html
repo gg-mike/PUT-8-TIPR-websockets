@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" />
+    <script src="main.js"></script>
+</head>
+<body>
+    <nav>
+        <div id="start" class="controls">
+            <label for="game-code">GAME CODE </label>
+            <input id="game-code" type="text" style="flex-grow: 1" />
+            <button onclick="join()">JOIN</button>
+            <button onclick="newGame()">NEW GAME</button>
+        </div>
+        <div id="game" class="controls">
+            <p style="font-weight: bold">SCORE (YOU): </p>
+            <p id="score-p1" style="text-align: end">0</p>
+            <p style="font-weight: bold">SCORE (OPPONENT): </p>
+            <p id="score-p2" style="text-align: end">0</p>
+            <button onclick="quitGame()">QUIT GAME</button>
+        </div>
+    </nav>
+    <main>
+        <canvas width="510" height="510"></canvas>
+    </main>
+</body>
+</html>
