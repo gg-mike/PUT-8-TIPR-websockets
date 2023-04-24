@@ -7,25 +7,18 @@
 
 nav {
     width: 100%;
-    height: 5em;
+    height: 7em;
     padding: 1em;
     background: #9DBEBB;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-main {
-    /*display: none;*/
-    margin-top: 2em;
-    margin-inline: 5em;
-    height: 32em;
-    background: green;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 }
 
-canvas {
-    background: white;
+nav h1 {
+    padding-inline: 0.5em;
+    font-size: xxx-large;
 }
 
 .controls {
@@ -34,8 +27,8 @@ canvas {
     display: flex;
     flex-direction: row;
     gap: 1em;
-    height: 3em;
-    width: 100%;
+    height: 100%;
+    width: fit-content;
 }
 
 .controls label {
@@ -45,10 +38,70 @@ canvas {
 .controls input {
     outline: none;
     padding: 1em;
+    width: 6em;
     border-radius: 0.5em;
 }
 
-.controls button {
+.controls p {
+    flex-grow: 1;
+}
+
+th {
+    width: 7em;
+    border-bottom: 1px solid #468189;
+}
+
+td {
+    text-align: center;
+}
+
+main {
+    margin-top: 2em;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+}
+
+main.idle, main.wait {
+    opacity: 0.5;
+}
+
+main:not(.p_turn) * {
+    pointer-events: none;
+}
+
+.board {
+    display: flex;
+    padding: 2em;
+    gap: 2em;
+    border: 1px solid #38676d;
+}
+
+.board div {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
+canvas {
+    background: grey;
+    width: 100px;
+    height: 100px;
+    transition: box-shadow 0.25s;
+}
+
+canvas:hover:not(.used) {
+    box-shadow: 0 0 5px 5px #468189;
+}
+
+canvas.clicked {
+    box-shadow: 0 0 5px 5px #2a4d52;
+}
+
+button {
     background: #468189;
     color: white;
     border: none;
@@ -57,18 +110,14 @@ canvas {
     width: 8em;
 }
 
-.controls button:hover {
+button:hover {
     background: #38676d;
 }
 
-.controls button:active {
+button:active {
     background: #2a4d52;
 }
 
-.controls p {
-    flex-grow: 1;
-}
-
-#game {
-    display: none;
+button:disabled {
+    background: #6ca1a4;
 }

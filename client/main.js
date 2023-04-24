@@ -1,81 +1,64 @@
-function showMessage(message) {
-  window.setTimeout(() => window.alert(message), 50);
+import * as game from "./game.js";
+import * as protocol from "./protocol.js";
+
+
+function accept() {
+    let clicked = JSON.parse(localStorage.getItem("clicked"));
+    protocol.send_MOVE_REQ(clicked[0], clicked[1]);
 }
 
-function join() {
-    let gameCode = document.getElementById("game-code").value;
-
-    // TODO: check if code is okay
-    if (gameCode === "") return showMessage(`No game with game code "${gameCode}" found`);
-
-    localStorage.setItem("game-code", gameCode);
-
-    console.log("joined game: " + gameCode);
-    switchMode(true);
+function disableAccept(isDisabled) {
+    document.getElementById("accept").disabled = isDisabled;
 }
 
-function newGame() {
-    console.log("newGame");
-    switchMode(true);
-}
+function onClickBoard(board) {
+  board.addEventListener("click", ({ target }) => {
+    const column = target.dataset.column;
+    if (column === undefined) return;
+    if (target.classList.contains("used")) return;
 
-function quitGame() {
-    localStorage.removeItem("game-code");
-    switchMode(false);
-}
+    let clicked = JSON.parse(localStorage.getItem("clicked"));
 
-function switchMode(isGame) {
-    if (isGame) {
-        document.getElementById("start").style.display = "none";
-        document.getElementById("game").style.display = "flex";
-        document.querySelector("canvas").style.display = "initial";
-    } else {
-        document.getElementById("start").style.display = "flex";
-        document.getElementById("game").style.display = "none";
-        document.querySelector("canvas").style.display = "none";
+    let isClicked = target.classList.contains("clicked");
+    if (!isClicked && clicked.length < 2) {
+        target.classList.toggle("clicked");
+        clicked.push(column)
+        if (clicked.length === 2) disableAccept(false);
+    } else if (isClicked) {
+        target.classList.toggle("clicked");
+        clicked = clicked.filter(x => x !== column);
+        disableAccept(true);
     }
+
+    localStorage.setItem("clicked", JSON.stringify(clicked));
+  });
 }
 
-function createBoard(board) {
-    console.log("createBoard");
-    let ctx = board.getContext("2d");
-    let rects = [], r, i = 0;
+function init() {
+    protocol.init();
 
-    for (let _x = 0; _x < 10; _x++)
-        for (let _y = 0; _y < 10; _y++)
-            rects.push({ x: 10 + 50 * _x, y: 10 + 50 * _y, w: 40, h: 40});
-
-    while(r = rects[i++]) ctx.rect(r.x, r.y, r.w, r.h);
-    ctx.fillStyle = "gray";
-    ctx.fill();
-
-    board.onmousemove = function(e) {
-        // important: correct mouse position:
-        let rect = this.getBoundingClientRect(),
-            x = e.clientX - rect.left,
-            y = e.clientY - rect.top,
-            i = 0, r;
-
-        // console.log(rect);
-
-        ctx.clearRect(0, 0, board.width, board.height); // for demo
-
-        while (r = rects[i++]) {
-            ctx.beginPath();
-            ctx.rect(r.x, r.y, r.w, r.h);
-
-            ctx.fillStyle = ctx.isPointInPath(x, y) ? "red" : "gray";
-            ctx.fill();
-        }
+    let gameKey = localStorage.getItem("game-key");
+    if (gameKey !== null) {
+        // TODO: after refresh if data is in localStorage send message to server to update itself
+        game.switchMode(game.Modes.WAIT);
     }
+
+    let clicked = localStorage.getItem("clicked");
+    if (clicked === null || JSON.parse(clicked).length !== 2)
+        disableAccept(true);
+    if (clicked === null) localStorage.setItem("clicked", "[]");
+
+
+    document.getElementById("join").onclick =
+        () => protocol.send_JOIN_REQ(document.getElementById("game-key").value);
+    document.getElementById("newGame").onclick = () => protocol.send_NEW_REQ();
+    document.getElementById("quitGame").onclick = () => protocol.send_QUIT_REQ();
+
+    document.getElementById("accept").onclick = accept;
+    const board = document.querySelector(".board");
+    game.createBoard(board);
+    onClickBoard(board);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  // Initialize the UI.
-  const board = document.querySelector("canvas");
-  createBoard(board);
-  // // Open the WebSocket connection and register event handlers.
-  // const websocket = new WebSocket("ws://localhost:8001/");
-  // receiveMoves(board, websocket);
-  // sendMoves(board, websocket);
-});
+if (document.readyState !== "loading") init();
+else window.addEventListener("DOMContentLoaded", () => init());

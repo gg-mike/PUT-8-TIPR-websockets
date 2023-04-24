@@ -5,26 +5,36 @@
     <title>Memory</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" />
-    <script src="main.js"></script>
 </head>
 <body>
     <nav>
+        <h1>MEMORY</h1>
         <div id="start" class="controls">
-            <label for="game-code">GAME CODE </label>
-            <input id="game-code" type="text" style="flex-grow: 1" />
-            <button onclick="join()">JOIN</button>
-            <button onclick="newGame()">NEW GAME</button>
+            <label for="game-key">GAME CODE </label>
+            <input id="game-key" type="text" maxlength="4"  />
+            <button id="join">JOIN</button>
+            <button id="newGame">NEW GAME</button>
         </div>
-        <div id="game" class="controls">
-            <p style="font-weight: bold">SCORE (YOU): </p>
-            <p id="score-p1" style="text-align: end">0</p>
-            <p style="font-weight: bold">SCORE (OPPONENT): </p>
-            <p id="score-p2" style="text-align: end">0</p>
-            <button onclick="quitGame()">QUIT GAME</button>
+        <div id="game" class="controls" style="display: none">
+            <table>
+                <tr>
+                    <th>GAME CODE</th>
+                    <th>YOU</th>
+                    <th>OPPONENT</th>
+                </tr>
+                <tr>
+                    <td id="g_key"></td>
+                    <td id="p_score"></td>
+                    <td id="o_score"></td>
+                </tr>
+            </table>
+            <button id="quitGame">QUIT GAME</button>
         </div>
     </nav>
-    <main>
-        <canvas width="510" height="510"></canvas>
+    <main class="idle">
+        <div class="board"></div>
+        <button id="accept">ACCEPT</button>
     </main>
+    <script src="main.js" type="module"></script>
 </body>
 </html>
