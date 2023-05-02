@@ -16,8 +16,8 @@ function onClickBoard(board) {
     const column = target.dataset.column;
     if (column === undefined) return;
     if (target.classList.contains("used")) return;
-
-    let clicked = JSON.parse(localStorage.getItem("clicked"));
+    let clicked = localStorage.getItem("clicked");
+    clicked = clicked === null ? [] : JSON.parse(clicked);
 
     let isClicked = target.classList.contains("clicked");
     if (!isClicked && clicked.length < 2) {
@@ -38,14 +38,17 @@ function init() {
     protocol.init();
 
     let gameKey = localStorage.getItem("game-key");
-    if (gameKey !== null) {
-        // TODO: after refresh if data is in localStorage send message to server to update itself
+    let playerKey = localStorage.getItem("player-key");
+    console.log(gameKey, playerKey);
+    if (gameKey !== null && playerKey !== null) {
         game.switchMode(game.Modes.WAIT);
+    } else {
+        localStorage.clear();
+        game.switchMode(game.Modes.IDLE)
     }
 
     let clicked = localStorage.getItem("clicked");
-    if (clicked === null || JSON.parse(clicked).length !== 2)
-        disableAccept(true);
+    disableAccept(clicked === null || JSON.parse(clicked).length !== 2);
     if (clicked === null) localStorage.setItem("clicked", "[]");
 
 

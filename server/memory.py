@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from itertools import cycle
 from random import randint, choice
-from string import ascii_letters
 
 from websockets.legacy.server import WebSocketServerProtocol
 
@@ -22,7 +21,7 @@ def gen_board() -> [int]:
 
 
 def gen_random_seq(n: int) -> str:
-    return "".join(choice(ascii_letters) for _ in range(n))
+    return "".join(choice("0123456789") for _ in range(n))
 
 
 def gen_new_key(d: dict[str, any], n: int = 4) -> str:
@@ -40,7 +39,7 @@ class Memory:
         self.used: [bool] = [False] * 12
         self.players: dict = {player1: 0}
 
-    def add_player(self, player2: str):
+    def addPlayer(self, player2: str):
         self.players[player2] = 0
         self.turns = cycle(list(self.players.keys()))
         self.active = next(self.turns)
@@ -58,9 +57,9 @@ class Memory:
     def canMove(self, player: str) -> bool:
         return self.active == player
 
-    def move(self, a: int, b: int) -> tuple[int, int, bool, bool, int] | None:
+    def move(self, a: int, b: int) -> tuple[int, int, bool, bool, int] | int:
         if self.used[a] or self.used[b]:
-            return None
+            return 2
 
         b_a = self.board[a]
         b_b = self.board[b]
@@ -69,13 +68,13 @@ class Memory:
             self.used[a] = self.used[b] = True
             self.players[self.active] += 1
             score = self.players[self.active]
-            active_changed = False
+            is_ch = False
         else:
             score = self.players[self.active]
             self.active = next(self.turns)
-            active_changed = True
+            is_ch = True
 
-        return b_a, b_b, len(set(self.used)) and self.used[0], active_changed, score
+        return b_a, b_b, len(set(self.used)) == 1 and self.used[0], is_ch, score
 
 
 class Games:
@@ -87,11 +86,15 @@ class Games:
     def getGame(self, game_key: str) -> Memory | None:
         return self.games.get(game_key)
 
-    def move(self, player_key: str, a: int, b: int):
+    def getOtherPlayer(self, player_key: str) -> str:
+        players = list(self.games[self.players[player_key]].players.keys())
+        return players[1] if player_key == players[0] else players[0]
+
+    def move(self, player_key: str, a: int, b: int) -> tuple[int, int, bool, bool, int] | int:
         if self.games[self.players[player_key]].canMove(player_key):
-            self.games[self.players[player_key]].move(a, b)
+            return self.games[self.players[player_key]].move(a, b)
         else:
-            pass
+            return 1
 
     def createGame(self, ws: WebSocketServerProtocol) -> tuple[str, str]:
         game_key = gen_new_key(self.games)
@@ -110,7 +113,7 @@ class Games:
         player_key = gen_new_key(self.players)
         self.players[player_key] = game_key
         self.players_ws[player_key] = ws
-        self.games[game_key].add_player(player_key)
+        self.games[game_key].addPlayer(player_key)
         return player_key, 0
 
     def removePlayer(self, player_key: str) -> str | None:
@@ -132,7 +135,7 @@ class Games:
 
 
 def main():
-    print(gen_board())
+    pass
 
 
 if __name__ == '__main__':
