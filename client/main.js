@@ -39,14 +39,6 @@ function init() {
 
     let gameKey = localStorage.getItem("game-key");
     let playerKey = localStorage.getItem("player-key");
-    console.log(gameKey, playerKey);
-    if (gameKey !== null && playerKey !== null) {
-        game.switchMode(game.Modes.WAIT);
-    } else {
-        localStorage.clear();
-        game.switchMode(game.Modes.IDLE)
-    }
-
     let clicked = localStorage.getItem("clicked");
     disableAccept(clicked === null || JSON.parse(clicked).length !== 2);
     if (clicked === null) localStorage.setItem("clicked", "[]");
@@ -61,6 +53,13 @@ function init() {
     const board = document.querySelector(".board");
     game.createBoard(board);
     onClickBoard(board);
+
+    if (gameKey !== null && playerKey !== null) {
+        game.switchMode(game.Modes.WAIT);
+    } else {
+        localStorage.clear();
+        game.switchMode(game.Modes.IDLE)
+    }
 }
 
 if (document.readyState !== "loading") init();

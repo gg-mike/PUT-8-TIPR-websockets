@@ -1,7 +1,6 @@
 import * as game from "./game.js"
 import * as utils from "./utils.js"
 import {extractHeaderInfo, generateHeader} from "./utils.js";
-import {showTiles} from "./game.js";
 
 export let conn = new WebSocket("ws://localhost:8001");
 
@@ -133,8 +132,7 @@ export function send_MOVE_REQ(a, b) {
 
 function recv_MOVE_ACK(arr) {
     let [aType, bType, isEnd, isCh, score, a, b] = utils.parseMoveRes(arr);
-    console.log(a, b, aType, bType, isEnd, isCh, score);
-    showTiles(a, b, aType, bType, isCh);
+    game.showTiles(a, b, aType, bType, isCh);
 
     document.getElementById("p_score").innerText = score.toString()
     if (isEnd) game.handleGameEnded();
@@ -150,8 +148,7 @@ function recv_MOVE_ERR(errCode) {
 
 function recv_UPDATE(arr) {
     let [aType, bType, isEnd, isCh, score, a, b] = utils.parseMoveRes(arr);
-    console.log(a, b, aType, bType, isEnd, isCh, score);
-    showTiles(a, b, aType, bType, isCh);
+    game.showTiles(a, b, aType, bType, isCh);
 
     document.getElementById("o_score").innerText = score.toString()
     if (isEnd) game.handleGameEnded();
@@ -166,7 +163,21 @@ function send_REFRESH_REQ() {
 }
 
 function recv_REFRESH_ACK(arr) {
+    let is_end = (arr[0] & 0b10) !== 0;
+    let is_p_turn = (arr[0] & 0b1) !== 0;
+    let board = arr.slice(3);
 
+    document.getElementById("p_score").innerText = arr[1].toString()
+    document.getElementById("o_score").innerText = arr[2].toString()
+
+    board.map((elem, i) => {
+        let aType = elem >> 4;
+        let bType = elem & 0b1111;
+        game.showTiles(i * 2, i * 2 + 1, aType, bType, false);
+    });
+
+    if (is_end) game.handleGameEnded();
+    else game.switchMode(is_p_turn? game.Modes.P_TURN : game.Modes.O_TURN);
 }
 
 function recv_REFRESH_ERR(code) {
@@ -176,7 +187,3 @@ function recv_REFRESH_ERR(code) {
         utils.showMessage("Your game no longer exists!");
     }
 }
-
-// ########## UNKNOWN_PT ###
-
-

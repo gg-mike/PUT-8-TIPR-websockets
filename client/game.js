@@ -11,7 +11,6 @@ export const Modes = {
 
 
 export function createBoard(board) {
-    console.log("createBoard");
     for (let column = 0; column < 4; column++) {
         const columnElement = document.createElement("div");
         columnElement.className = "column";
@@ -45,8 +44,8 @@ export function showTiles(a, b, aType, bType, isTmp) {
         setTimeout(() => clearCanvas(cA),2000);
         setTimeout(() => clearCanvas(cB),2000);
     } else {
-        cA.classList.add("used");
-        cB.classList.add("used");
+        if (aType !== 15) cA.classList.add("used");
+        if (bType !== 15) cB.classList.add("used");
     }
 }
 

@@ -47,16 +47,16 @@ async def process_MOVE_REQ(moves: int, player_key: str, games: memory.Games) -> 
     return generate_header(PacketType.MOVE, code=code) + bytes([((b_a << 4) | b_b), score, moves])
 
 
-def process_REFRESH(player_key: str, games: memory.Games) -> bytes:
+def process_REFRESH(ws, player_key: str, games: memory.Games) -> bytes:
     print(f"REFRESH|REQ: player=\"{player_key}\"")
     if player_key not in games.players:
         return generate_header(PacketType.REFRESH, is_err=True, code=1)
 
     game = games.games[games.players[player_key]]
+    games.players_ws[player_key] = ws
+    code, p_score, o_score, board = game.getStatus(player_key)
 
-
-    # TODO: determine whether the game still exists, whose turn is it, what are the scores
-    return generate_header(PacketType.REFRESH)
+    return generate_header(PacketType.REFRESH, code=code) + bytes([p_score, o_score] + board)
 
 
 async def generate_response(websocket, req: bytes, games: memory.Games) -> bytes:
@@ -71,7 +71,7 @@ async def generate_response(websocket, req: bytes, games: memory.Games) -> bytes
     elif pt == PacketType.MOVE:
         return await process_MOVE_REQ(req[1], req[2:].decode("utf-8"), games)
     elif pt == PacketType.REFRESH:
-        return process_REFRESH(req[1:].decode("utf-8"), games)
+        return process_REFRESH(websocket, req[1:].decode("utf-8"), games)
     else:
         print(f"Unknown packet type: {pt}")
         return bytes([PacketType.UNKNOWN_PT, pt])

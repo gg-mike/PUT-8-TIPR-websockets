@@ -76,6 +76,21 @@ class Memory:
 
         return b_a, b_b, len(set(self.used)) == 1 and self.used[0], is_ch, score
 
+    def getStatus(self, player_key: str) -> tuple[int, int, int, [int]]:
+        bin_board = []
+        for i in range(0, len(self.board) - 1, 2):
+            x = self.board[i] if self.used[i] else 0b1111
+            y = self.board[i + 1] if self.used[i + 1] else 0b1111
+            bin_board.append((x << 4) | y)
+
+        is_end = len(set(self.used)) == 1 and self.used[0]
+        p_turn = self.active == player_key
+        scores = self.players.copy()
+        p_score = scores.pop(player_key)
+        o_score = scores.popitem()[1]
+
+        return (is_end << 1) | p_turn, p_score, o_score, bin_board
+
 
 class Games:
     def __init__(self):
